@@ -26,4 +26,5 @@ block content
         a.album-link(href=`/${album.slug}`) #{album.name}
         if nextPhoto
             a.next(href=`/${album.slug}/${nextPhoto}`)
+        script(src='/assets/js/photo.js')
 

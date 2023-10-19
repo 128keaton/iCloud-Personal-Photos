@@ -6,12 +6,16 @@ block meta
     meta(name='og:description' content=album.name)
     meta(name='twitter:image' content=photos[0].thumbnail)
     meta(name='twitter:description' content=album.name)
-    link(rel='preload' as='image' href=photos[0].thumbnail)
+
+    each photo in photos.slice(0, 50)
+        link(rel='preload' as='image' href=photo.thumbnail)
 
 
 block content
+    div.loading
+        h3 Loading
     div.photos
         each photo in photos
             a(href=`/${album.slug}/${photo.id}`, class='photo')
                 img(src=photo.thumbnail, alt='Photo Thumb', srcset=`${photo.thumbnail} 100w`)
-
+    script(src='/assets/js/album.js')
