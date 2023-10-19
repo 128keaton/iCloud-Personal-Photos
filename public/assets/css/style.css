@@ -85,9 +85,10 @@ div.loading {
     align-items: center;
     left: 0;
     right: 0;
-    top: 50vh;
+    top: 45vh;
     text-align: center;
     transition: opacity 250ms ease;
+    z-index: 1000;
 }
 
 div.loading.show {
