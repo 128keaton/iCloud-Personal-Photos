@@ -107,7 +107,6 @@ img.show {
 .photo-standalone {
     flex: 1;
     text-align: center;
-    padding: 1.2em;
     display: flex;
     justify-content: center;
     align-items: center;
