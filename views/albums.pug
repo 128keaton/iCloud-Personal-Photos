@@ -1,0 +1,10 @@
+extends layout
+
+block content
+    div.albums
+        each album in albums
+            a(href=`/${album.slug}`, class='album')
+                div.meta
+                    h1.title #{album.name}
+                img(src=album.coverURL, alt='Cover')
+

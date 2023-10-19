@@ -1,0 +1,25 @@
+doctype
+html(lang='en')
+    head
+        meta(charset='utf-8')
+        link(rel="stylesheet", href="/assets/css/reset.css", attr)
+        link(rel="stylesheet", href="/assets/css/style.css", attr)
+        link(rel="stylesheet", href="/assets/css/albums.css", attr)
+        meta(name="viewport" content="width=device-width, initial-scale=1")
+        title  #{title}
+    body
+        main
+            block header
+                nav
+                    .nav-content
+                        // logo
+                        a.logo(href='https://128keaton.com') Keaton Burleson
+                        // navigation button
+                        .nav-icon
+                            .bar.one
+                            .bar.two
+                        // nav links
+                        .nav-links
+                            a(href='/') Albums
+            div.content
+                block content

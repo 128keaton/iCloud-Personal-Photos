@@ -1,0 +1,8 @@
+extends layout
+
+block content
+    div.photos
+        each photo in photos
+            a(href=`/${album.slug}/${photo.id}`, class='photo')
+                img(src=photo.thumbnail, alt='Photo Thumb')
+
