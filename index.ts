@@ -33,6 +33,7 @@ if (!!redisURL && redisURL.includes('@')) {
 if (!cache)
     throw new Error('Caching failed');
 
+app.enable('trust proxy');
 app.set('view engine', 'pug')
 app.set('views', `${__dirname}/views`)
 app.use(express.static(path.join(__dirname, 'public')))
@@ -45,8 +46,6 @@ const albums = [
         coverURL: '',
     }
 ];
-
-
 
 
 const getCacheItem = (key: string) => {
@@ -235,6 +234,12 @@ const getAlbums = async () => {
     return albums;
 }
 
+if (process.env.NODE_ENV || 'development' !== 'development')
+    app.use((req, res, next) => {
+        req.secure ? next() : res.redirect('https://' + req.headers.host + req.url)
+    })
+
+
 app.get('/', async (req, res) => {
     const albums = await getAlbums();
 
@@ -278,7 +283,13 @@ app.get('/:albumSlug/:photoID', cache.route({expire: 1500}), async (req: Request
 
     const photo = await getAlbumImage(album.slug, req.params['photoID']);
 
-    return res.render('photo', {title: album.name, album, photo, prevPhoto: photo?.prevPhoto, nextPhoto: photo?.nextPhoto})
+    return res.render('photo', {
+        title: album.name,
+        album,
+        photo,
+        prevPhoto: photo?.prevPhoto,
+        nextPhoto: photo?.nextPhoto
+    })
 });
 
 
