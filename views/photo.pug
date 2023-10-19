@@ -4,14 +4,13 @@ block meta
     meta(name='description' content=photo.caption)
     meta(name='og:description' content=photo.caption)
     meta(name='twitter:description' content=photo.caption)
-
+    link(rel='preload' as='image' href=photo.url)
     if photo.thumbnail
         meta(name='twitter:image' content=photo.thumbnail.url)
         link(rel='preload' as='image' href=photo.thumbnail.url)
         meta(property='og:image' content=photo.thumbnail.url)
     else
         meta(name='twitter:image' content=photo.url)
-        link(rel='preload' as='image' href=photo.url)
         meta(property='og:image' content=photo.url)
 
 
@@ -19,15 +18,12 @@ block content
     div.photo-standalone
         if prevPhoto
             a.prev(href=`/${album.slug}/${prevPhoto}`)
-
         if photo.thumbnail
             img(src=photo.url, alt=`${photo.caption || 'Photo'}`, srcset=`${photo.thumbnail.url} 250w, ${photo.url} 350w`)
         else
             img(src=photo.url, alt=`${photo.caption || 'Photo'}`, srcset=`${photo.url} 350w`)
-
         p.caption #{photo.caption}
         a.album-link(href=`/${album.slug}`) #{album.name}
-
         if nextPhoto
             a.next(href=`/${album.slug}/${nextPhoto}`)
 
