@@ -4,7 +4,7 @@
   "description": "Use iCloud to make your own Flickr clone",
   "main": "index.ts",
   "scripts": {
-    "start": "node dist/index.js",
+    "start": "node index.js",
     "dev": "nodemon index.ts",
     "build": "tsc -p ."
   },
