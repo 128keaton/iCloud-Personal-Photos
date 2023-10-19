@@ -127,16 +127,23 @@ const getAlbumImage = async (slug: string, photoID: string) => {
         nextPhoto = data.photos[photoIndex + 1].photoGuid;
     }
 
-    const derivatives = Object.values(photo?.derivatives || {});
-    const derivative = derivatives[derivatives.length - 1];
+    const derivatives = Object.keys(photo?.derivatives || {}).sort((a, b) => a.localeCompare(b));
+    const highQuality = (photo?.derivatives || {})[derivatives[0]];
 
-    if (!!derivative) {
+    let lowQuality: any = false;
+
+    if (derivatives.length > 1) {
+        lowQuality = (photo?.derivatives || {})[derivatives[derivatives.length - 1]];
+    }
+
+
+    if (!!highQuality || !!lowQuality) {
         const returnValue = {
             ...photo,
-            ...derivative,
+            ...(highQuality || lowQuality),
             prevPhoto: (!!prevPhoto ? prevPhoto : false),
             nextPhoto: (!!nextPhoto ? nextPhoto : false),
-            thumbnail: derivatives[0]
+            thumbnail: lowQuality
         };
 
         if (!!cache)

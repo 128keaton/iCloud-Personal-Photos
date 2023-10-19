@@ -13,7 +13,7 @@ block content
         if prevPhoto
             a.prev(href=`/${album.slug}/${prevPhoto}`)
 
-        img(src=photo.url, alt='Photo', srcset=`${photo.thumbnail.url} 100w, ${photo.url} 300w`)
+        img(src=photo.url, alt='Photo', srcset=`${photo.thumbnail.url} 250w, ${photo.url} 350w`)
         p.caption #{photo.caption}
         a.album-link(href=`/${album.slug}`) #{album.name}
 
