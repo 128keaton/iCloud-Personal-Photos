@@ -1,0 +1,7 @@
+{
+  "name": "Pix",
+  "description": "A personal webpage for your public iCloud Albums",
+  "website": "https://github.com/128keaton/iCloud-Personal-Photos",
+  "success_url": "/",
+  "addons": ["heroku-redis:mini"]
+}
