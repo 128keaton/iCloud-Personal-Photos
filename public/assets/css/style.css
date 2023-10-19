@@ -274,7 +274,7 @@ a.logo {
 
 p.caption {
     position: absolute;
-    bottom: 1em;
+    bottom: 5em;
     left: 1em;
     right: 1em;
     text-align: center;
@@ -282,7 +282,7 @@ p.caption {
 
 a.album-link {
     position: absolute;
-    bottom: 3em;
+    bottom: 6em;
     left: 0;
     right: 0;
     text-align: center;
