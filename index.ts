@@ -13,11 +13,10 @@ const port = process.env.PORT || '5123';
 
 const redisURL = process.env.REDIS_URL;
 
-let cache;
+let cache: expressRedisCache.ExpressRedisCache | undefined = undefined;
 
 if (!!redisURL && redisURL.includes('@')) {
     cache = expressRedisCache({
-        expire: 10000,
         auth_pass: redisURL.split('@')[0].split(':')[2],
         host: redisURL.split('@')[1].split(':')[0],
         port: parseInt(redisURL.split('@')[1].split(':')[1]),
@@ -26,7 +25,6 @@ if (!!redisURL && redisURL.includes('@')) {
     const splitRedisURL = redisURL.split(':');
 
     cache = expressRedisCache({
-        expire: 10000,
         host: splitRedisURL[1].split('//')[1],
         port: parseInt(splitRedisURL[2]),
     })
@@ -48,8 +46,34 @@ const albums = [
     }
 ];
 
+const getCacheItem = (key: string) => {
+    return new Promise<expressRedisCache.Entry[]>((resolve, reject) => {
+        if (!cache) {
+            reject('No cache');
+            return;
+        }
+
+        cache.get(key, (error, entries) => {
+            if (!!error) {
+                reject(error)
+                return;
+            }
+
+            resolve(entries);
+        })
+    })
+}
 
 const getAlbumImage = async (slug: string, photoID: string) => {
+
+    if (!!cache) {
+        const cachedItem = await getCacheItem(photoID);
+
+        if (!!cachedItem && !!cachedItem[0]) {
+            return JSON.parse(cachedItem[0].body);
+        }
+    }
+
     const album = albums.find(album => album.slug === slug);
 
     if (!album)
@@ -81,16 +105,37 @@ const getAlbumImage = async (slug: string, photoID: string) => {
     const derivatives = Object.values(photo?.derivatives || {});
     const derivative = derivatives[derivatives.length - 1];
 
-    if (!!derivative)
-        return {
+    if (!!derivative) {
+        const returnValue = {
             ...photo,
             ...derivative,
             prevPhoto,
             nextPhoto
         };
+
+        if (!!cache)
+            cache.add(photoID, JSON.stringify(returnValue), (error, added) => {
+                if (!!error)
+                    console.error(error);
+                else if (!!added)
+                    console.log(added);
+            });
+
+        return returnValue;
+    }
+
+    return null;
 }
 
 const getAlbum = async (slug: string) => {
+    if (!!cache) {
+        const cachedItem = await getCacheItem(slug);
+
+        if (!!cachedItem && !!cachedItem[0]) {
+            return JSON.parse(cachedItem[0].body);
+        }
+    }
+
     const album = albums.find(album => album.slug === slug);
 
     if (!album)
@@ -117,12 +162,28 @@ const getAlbum = async (slug: string) => {
                 thumbnail: thumb.url,
             })
         }
-    })
+    });
+
+    if (!!cache)
+        cache.add(slug, JSON.stringify(images), (error, added) => {
+            if (!!error)
+                console.error(error);
+            else if (!!added)
+                console.log(added);
+        });
 
     return images;
 }
 
 const getAlbums = async () => {
+    if (!!cache) {
+        const cachedItem = await getCacheItem('albums');
+
+        if (!!cachedItem && !!cachedItem[0]) {
+            return JSON.parse(cachedItem[0].body);
+        }
+    }
+
     for (let album of albums) {
         if (!album.coverURL.length) {
             const data = await getImages(album.token);
@@ -136,6 +197,14 @@ const getAlbums = async () => {
         }
     }
 
+    if (!!cache)
+        cache.add('albums', JSON.stringify(albums), (error, added) => {
+            if (!!error)
+                console.error(error);
+            else if (!!added)
+                console.log(added);
+        });
+
     return albums;
 }
 
@@ -145,8 +214,21 @@ app.get('/', async (req, res) => {
     res.render('albums', {title: 'Albums', albums})
 });
 
+app.get('/reset', (req, res) => {
+    if (!!cache) {
+        cache.del('*', (error, deleted) => {
+            if (!!error)
+                res.send({error});
+            else if (!!deleted)
+                res.send({deleted});
+        })
+    } else {
+        res.send({error: 'no cache'});
+    }
+})
 
-app.get('/:albumSlug', cache.route(), async (req: Request, res: Response) => {
+
+app.get('/:albumSlug', cache.route({expire: 1500}), async (req: Request, res: Response) => {
     const album = albums.find(album => album.slug === req.params['albumSlug']);
     if (!album) {
         res.sendStatus(404);
@@ -159,7 +241,7 @@ app.get('/:albumSlug', cache.route(), async (req: Request, res: Response) => {
     res.render('album', {title: album.name, album, photos})
 });
 
-app.get('/:albumSlug/:photoID', cache.route(), async (req: Request, res: Response) => {
+app.get('/:albumSlug/:photoID', cache.route({expire: 1500}), async (req: Request, res: Response) => {
     const album = albums.find(album => album.slug === req.params['albumSlug']);
     if (!album) {
         res.sendStatus(404);
@@ -171,6 +253,7 @@ app.get('/:albumSlug/:photoID', cache.route(), async (req: Request, res: Respons
 
     res.render('photo', {title: album.name, album, photo, prevPhoto: photo?.prevPhoto, nextPhoto: photo?.nextPhoto})
 });
+
 
 app.listen(port, () => {
     console.log(`⚡️[server]: Server is running at http://localhost:${port}`);

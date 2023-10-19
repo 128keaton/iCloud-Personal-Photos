@@ -128,7 +128,7 @@ nav {
     justify-content: space-between;
 }
 
-.nav-content a {
+.nav-content a:not(.nav-icon) {
     display: block;
     font-size: 14px;
     line-height: 44px;
