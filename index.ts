@@ -1,6 +1,6 @@
 import express, {Express, Request, Response} from 'express';
 import dotenv from 'dotenv';
-import getImages from "icloud-shared-album";
+import getImages, {ICloud} from "icloud-shared-album";
 import path from "path";
 
 import expressRedisCache from 'express-redis-cache';
@@ -46,6 +46,9 @@ const albums = [
     }
 ];
 
+
+
+
 const getCacheItem = (key: string) => {
     return new Promise<expressRedisCache.Entry[]>((resolve, reject) => {
         if (!cache) {
@@ -64,10 +67,33 @@ const getCacheItem = (key: string) => {
     })
 }
 
+const cachedGetImages = async (token: string): Promise<ICloud.Response> => {
+    if (!!cache) {
+        const cachedItem = await getCacheItem(`${token}-images`);
+
+        if (!!cachedItem && !!cachedItem[0]) {
+            return JSON.parse(cachedItem[0].body);
+        }
+    }
+
+
+    const data = await getImages(token);
+
+    if (!!cache)
+        cache.add(`${token}-images`, JSON.stringify(data), (error, added) => {
+            if (!!error)
+                console.error(error);
+            else if (!!added)
+                console.log(added);
+        });
+
+    return data;
+}
+
 const getAlbumImage = async (slug: string, photoID: string) => {
 
     if (!!cache) {
-        const cachedItem = await getCacheItem(photoID);
+        const cachedItem = await getCacheItem(`${photoID}-photo`);
 
         if (!!cachedItem && !!cachedItem[0]) {
             return JSON.parse(cachedItem[0].body);
@@ -80,7 +106,7 @@ const getAlbumImage = async (slug: string, photoID: string) => {
         return null;
 
 
-    const data = await getImages(album.token);
+    const data = await cachedGetImages(album.token);
     let photoIndex = 0;
 
     const photo = data.photos.find((image, index) => {
@@ -114,7 +140,7 @@ const getAlbumImage = async (slug: string, photoID: string) => {
         };
 
         if (!!cache)
-            cache.add(photoID, JSON.stringify(returnValue), (error, added) => {
+            cache.add(`${photoID}-photo`, JSON.stringify(returnValue), (error, added) => {
                 if (!!error)
                     console.error(error);
                 else if (!!added)
@@ -129,7 +155,7 @@ const getAlbumImage = async (slug: string, photoID: string) => {
 
 const getAlbum = async (slug: string) => {
     if (!!cache) {
-        const cachedItem = await getCacheItem(slug);
+        const cachedItem = await getCacheItem(`${slug}-album`);
 
         if (!!cachedItem && !!cachedItem[0]) {
             return JSON.parse(cachedItem[0].body);
@@ -148,7 +174,7 @@ const getAlbum = async (slug: string) => {
         fullImage: string;
     }[] = [];
 
-    const data = await getImages(album.token);
+    const data = await cachedGetImages(album.token);
 
     data.photos.forEach(image => {
         const derivatives = Object.keys(image.derivatives);
@@ -165,7 +191,7 @@ const getAlbum = async (slug: string) => {
     });
 
     if (!!cache)
-        cache.add(slug, JSON.stringify(images), (error, added) => {
+        cache.add(`${slug}-album`, JSON.stringify(images), (error, added) => {
             if (!!error)
                 console.error(error);
             else if (!!added)
@@ -186,7 +212,7 @@ const getAlbums = async () => {
 
     for (let album of albums) {
         if (!album.coverURL.length) {
-            const data = await getImages(album.token);
+            const data = await cachedGetImages(album.token);
             if (data.photos.length > 0) {
                 const firstPhoto = data.photos[0];
                 const derivatives = Object.keys(firstPhoto.derivatives);
@@ -238,7 +264,7 @@ app.get('/:albumSlug', cache.route({expire: 1500}), async (req: Request, res: Re
 
     const photos = await getAlbum(album.slug);
 
-    res.render('album', {title: album.name, album, photos})
+    return res.render('album', {title: album.name, album, photos})
 });
 
 app.get('/:albumSlug/:photoID', cache.route({expire: 1500}), async (req: Request, res: Response) => {
@@ -251,7 +277,7 @@ app.get('/:albumSlug/:photoID', cache.route({expire: 1500}), async (req: Request
 
     const photo = await getAlbumImage(album.slug, req.params['photoID']);
 
-    res.render('photo', {title: album.name, album, photo, prevPhoto: photo?.prevPhoto, nextPhoto: photo?.nextPhoto})
+    return res.render('photo', {title: album.name, album, photo, prevPhoto: photo?.prevPhoto, nextPhoto: photo?.nextPhoto})
 });
 
 
