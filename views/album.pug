@@ -1,5 +1,12 @@
 extends layout
 
+block meta
+    meta(name='description' content=album.name)
+    meta(property='og:image' content=photos[0].fullImage)
+    meta(name='og:description' content=album.name)
+    meta(name='twitter:image' content=photos[0].fullImage)
+    meta(name='twitter:description' content=album.name)
+
 block content
     div.photos
         each photo in photos

@@ -1,8 +1,16 @@
 extends layout
 
+block meta
+    meta(name='description' content=photo.caption)
+    meta(property='og:image' content=photo.url)
+    meta(name='og:description' content=photo.caption)
+    meta(name='twitter:image' content=photo.url)
+    meta(name='twitter:description' content=photo.caption)
+
 block content
     div.photo-standalone
         a.prev(href=`/${album.slug}/${prevPhoto}`)
         img(src=photo.url, alt='Photo')
+        p.caption #{photo.caption}
         a.next(href=`/${album.slug}/${nextPhoto}`)
 
