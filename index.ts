@@ -55,9 +55,26 @@ const getAlbumImage = async (slug: string, photoID: string) => {
 
 
     const data = await getImages(album.token);
-    const photo = data.photos.find(image => {
-        return image.photoGuid === photoID;
+    let photoIndex = 0;
+
+    const photo = data.photos.find((image, index) => {
+        if (image.photoGuid === photoID) {
+            photoIndex = index;
+            return true;
+        }
+
+        return false;
     });
+
+    let prevPhoto, nextPhoto;
+
+    if (photoIndex > 0) {
+        prevPhoto = data.photos[photoIndex - 1].photoGuid;
+    }
+
+    if (photoIndex <= data.photos.length) {
+        nextPhoto = data.photos[photoIndex + 1].photoGuid;
+    }
 
     const derivatives = Object.values(photo?.derivatives || {});
     const derivative = derivatives[derivatives.length - 1];
@@ -66,6 +83,8 @@ const getAlbumImage = async (slug: string, photoID: string) => {
         return {
             ...photo,
             ...derivative,
+            prevPhoto,
+            nextPhoto
         };
 }
 
@@ -148,7 +167,7 @@ app.get('/:albumSlug/:photoID', cache.route(), async (req: Request, res: Respons
 
     const photo = await getAlbumImage(album.slug, req.params['photoID']);
 
-    res.render('photo', {title: album.name, album, photo})
+    res.render('photo', {title: album.name, album, photo, prevPhoto: photo?.prevPhoto, nextPhoto: photo?.nextPhoto})
 });
 
 app.listen(port, () => {

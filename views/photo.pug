@@ -2,5 +2,7 @@ extends layout
 
 block content
     div.photo-standalone
+        a.prev(href=`/${album.slug}/${prevPhoto}`) Previous
         img(src=photo.url, alt='Photo')
+        a.next(href=`/${album.slug}/${nextPhoto}`) Next
 

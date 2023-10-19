@@ -44,11 +44,25 @@ main {
     flex: 1;
     text-align: center;
     padding: 1.2em;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0 auto;
+}
+
+a.prev, a.next {
+    margin: 1.2em;
+    color: black!important;
+    flex-shrink: 0;
+    text-align: center;
+    display: block;
+    text-decoration: none!important;
+    width: 120px;
 }
 
 .photo-standalone img {
-    max-height: 90vh;
-    max-width: 90vw;
+    max-width: calc(100vw - 300px);
+    max-height: 85vh;
 }
 
 
