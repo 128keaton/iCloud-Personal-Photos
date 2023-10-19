@@ -2,16 +2,16 @@ extends layout
 
 block meta
     meta(name='description' content=album.name)
-    meta(property='og:image' content=photos[0].fullImage)
+    meta(property='og:image' content=photos[0].thumbnail)
     meta(name='og:description' content=album.name)
-    meta(name='twitter:image' content=photos[0].fullImage)
+    meta(name='twitter:image' content=photos[0].thumbnail)
     meta(name='twitter:description' content=album.name)
-    link(rel='preload' as='image' href=photos[0].fullImage)
+    link(rel='preload' as='image' href=photos[0].thumbnail)
 
 
 block content
     div.photos
         each photo in photos
             a(href=`/${album.slug}/${photo.id}`, class='photo')
-                img(src=photo.thumbnail, alt='Photo Thumb')
+                img(src=photo.thumbnail, alt='Photo Thumb', srcset=`${photo.thumbnail} 500w`)
 
