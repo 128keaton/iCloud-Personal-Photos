@@ -13,5 +13,5 @@ block content
     div.photos
         each photo in photos
             a(href=`/${album.slug}/${photo.id}`, class='photo')
-                img(src=photo.thumbnail, alt='Photo Thumb', srcset=`${photo.thumbnail} 500w`)
+                img(src=photo.thumbnail, alt='Photo Thumb', srcset=`${photo.thumbnail} 100w`)
 

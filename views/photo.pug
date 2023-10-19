@@ -12,9 +12,10 @@ block content
     div.photo-standalone
         if prevPhoto
             a.prev(href=`/${album.slug}/${prevPhoto}`)
-            
-        img(src=photo.url, alt='Photo', srcset=`${photo.thumbnail.url} 500w, ${photo.url} 1000w`)
+
+        img(src=photo.url, alt='Photo', srcset=`${photo.thumbnail.url} 100w, ${photo.url} 300w`)
         p.caption #{photo.caption}
+        a.album-link(href=`/${album.slug}`) #{album.name}
 
         if nextPhoto
             a.next(href=`/${album.slug}/${nextPhoto}`)

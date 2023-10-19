@@ -86,7 +86,7 @@ a.prev, a.next {
     text-align: center;
     display: block;
     text-decoration: none!important;
-    width: 50vw;
+    width: 25vw;
     height: 100%;
     position: absolute;
     top: 0;
@@ -244,4 +244,14 @@ p.caption {
     left: 1em;
     right: 1em;
     text-align: center;
+}
+
+a.album-link {
+    position: absolute;
+    bottom: 3em;
+    left: 0;
+    right: 0;
+    text-align: center;
+    color: blue;
+    text-decoration: none;
 }
