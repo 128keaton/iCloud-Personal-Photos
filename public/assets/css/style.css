@@ -57,12 +57,29 @@ a.prev, a.next {
     text-align: center;
     display: block;
     text-decoration: none!important;
-    width: 120px;
+    width: 50vw;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+}
+
+a.prev {
+    left: 0;
+}
+
+a.next {
+    right: 0;
 }
 
 .photo-standalone img {
-    max-width: calc(100vw - 300px);
+    max-width: 100vw;
     max-height: 85vh;
+}
+
+.content {
+    flex: 1;
+    position: relative;
 }
 
 

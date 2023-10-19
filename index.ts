@@ -17,6 +17,7 @@ let cache;
 
 if (!!redisURL && redisURL.includes('@')) {
     cache = expressRedisCache({
+        expire: 10000,
         auth_pass: redisURL.split('@')[0].split(':')[2],
         host: redisURL.split('@')[1].split(':')[0],
         port: parseInt(redisURL.split('@')[1].split(':')[1]),
@@ -25,6 +26,7 @@ if (!!redisURL && redisURL.includes('@')) {
     const splitRedisURL = redisURL.split(':');
 
     cache = expressRedisCache({
+        expire: 10000,
         host: splitRedisURL[1].split('//')[1],
         port: parseInt(splitRedisURL[2]),
     })
