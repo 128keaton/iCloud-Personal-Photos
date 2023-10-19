@@ -10,8 +10,12 @@ block meta
 
 block content
     div.photo-standalone
-        a.prev(href=`/${album.slug}/${prevPhoto}`)
+        if prevPhoto
+            a.prev(href=`/${album.slug}/${prevPhoto}`)
+            
         img(src=photo.url, alt='Photo', srcset=`${photo.thumbnail.url} 500w, ${photo.url} 1000w`)
         p.caption #{photo.caption}
-        a.next(href=`/${album.slug}/${nextPhoto}`)
+
+        if nextPhoto
+            a.next(href=`/${album.slug}/${nextPhoto}`)
 
