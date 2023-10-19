@@ -136,7 +136,8 @@ const getAlbumImage = async (slug: string, photoID: string) => {
             ...photo,
             ...derivative,
             prevPhoto,
-            nextPhoto
+            nextPhoto,
+            thumbnail: derivatives[0]
         };
 
         if (!!cache)

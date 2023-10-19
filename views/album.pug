@@ -6,6 +6,8 @@ block meta
     meta(name='og:description' content=album.name)
     meta(name='twitter:image' content=photos[0].fullImage)
     meta(name='twitter:description' content=album.name)
+    link(rel='preload' as='image' href=photos[0].fullImage)
+
 
 block content
     div.photos
