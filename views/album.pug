@@ -17,5 +17,5 @@ block content
     div.photos
         each photo in photos
             a(href=`/${album.slug}/${photo.id}`, class='photo')
-                img(src=`/${album.slug}/${photo.id}/thumb.jpg`, alt='Photo Thumb', srcset=`/${album.slug}/${photo.id}/thumb.jpg 100w`)
+                img(src=`/${album.slug}/${photo.id}/thumb.jpg`, alt='Photo Thumb', srcset=`/${album.slug}/${photo.id}/thumb.jpg 100w, /${album.slug}/${photo.id}/full.jpg 1000w`)
     script(src='/assets/js/album.js')
