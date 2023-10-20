@@ -89,6 +89,7 @@ div.loading {
     text-align: center;
     transition: opacity 250ms ease;
     z-index: 1000;
+    background: white;
 }
 
 div.loading.show {
