@@ -45,6 +45,12 @@ const albums = [
         slug: 'kenya-october-2023',
         token: 'B0O5yeZFhmSQuG',
         coverURL: '',
+    },
+    {
+        name: 'Old Glass',
+        slug: 'old-glass',
+        token: 'B0O59UlCqCOk3T',
+        coverURL: '',
     }
 ];
 
