@@ -271,7 +271,23 @@ app.get('/reset', (req, res) => {
     } else {
         res.send({error: 'no cache'});
     }
-})
+});
+
+const returnImage = async (res: Response, url: string) => {
+    const response = await axios(url, {responseType: 'stream'}).catch(err => {
+        console.error(err);
+        return null;
+    });
+
+
+    if (!!response && !!response.data) {
+        res.setHeader('Content-Type', 'image/jpeg');
+        res.setHeader('Cache-Control', 'max-age=86400');
+        response.data.pipe(res);
+    } else {
+        res.sendStatus(404);
+    }
+}
 
 
 app.get('/:albumSlug', cache.route(), async (req: Request, res: Response) => {
@@ -296,11 +312,7 @@ app.get('/:albumSlug/cover.jpg', cache.route(), async (req: Request, res: Respon
 
 
     const photos = await getAlbum(album.slug);
-    const arrayBuffer = await axios(photos[0].thumbnail, {responseType: 'stream'});
-
-    res.setHeader('Content-Type', 'image/jpeg');
-    res.setHeader('Cache-Control','max-age=86400');
-    arrayBuffer.data.pipe(res);
+    return returnImage(res, photos[0].thumbnail);
 });
 
 app.get('/:albumSlug/:photoID/full.jpg', cache.route(), async (req: Request, res: Response) => {
@@ -312,11 +324,7 @@ app.get('/:albumSlug/:photoID/full.jpg', cache.route(), async (req: Request, res
 
 
     const photo = await getAlbumImage(album.slug, req.params['photoID']);
-    const arrayBuffer = await axios(photo.url, {responseType: 'stream'});
-
-    res.setHeader('Content-Type', 'image/jpeg');
-    res.setHeader('Cache-Control','max-age=86400');
-    arrayBuffer.data.pipe(res);
+    return returnImage(res, photo.url);
 });
 
 app.get('/:albumSlug/:photoID/thumb.jpg', cache.route(), async (req: Request, res: Response) => {
@@ -327,11 +335,7 @@ app.get('/:albumSlug/:photoID/thumb.jpg', cache.route(), async (req: Request, re
     }
 
     const photo = await getAlbumImage(album.slug, req.params['photoID']);
-    const arrayBuffer = await axios(photo.thumbnail.url, {responseType: 'stream'});
-
-    res.setHeader('Content-Type', 'image/jpeg');
-    res.setHeader('Cache-Control','max-age=86400');
-    arrayBuffer.data.pipe(res);
+    return returnImage(res, photo.thumbnail.url);
 });
 
 app.get('/:albumSlug/:photoID', cache.route(), async (req: Request, res: Response) => {
