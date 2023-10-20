@@ -2,6 +2,7 @@ import express, {Express, Request, Response} from 'express';
 import dotenv from 'dotenv';
 import getImages, {ICloud} from "icloud-shared-album";
 import path from "path";
+import axios from 'axios';
 
 import expressRedisCache from 'express-redis-cache';
 
@@ -11,7 +12,7 @@ const app: Express = express();
 const port = process.env.PORT || '5123';
 
 
-const redisURL = process.env.REDIS_URL;
+const redisURL = process.env.REDIS_URL || 'redis://localhost:6379';
 
 let cache: expressRedisCache.ExpressRedisCache | undefined = undefined;
 
@@ -119,11 +120,11 @@ const getAlbumImage = async (slug: string, photoID: string) => {
 
     let prevPhoto, nextPhoto;
 
-    if (photoIndex > 0) {
+    if (photoIndex > 0 && data.photos[photoIndex - 1]) {
         prevPhoto = data.photos[photoIndex - 1].photoGuid;
     }
 
-    if (photoIndex <= data.photos.length) {
+    if (photoIndex <= data.photos.length && data.photos[photoIndex + 1]) {
         nextPhoto = data.photos[photoIndex + 1].photoGuid;
     }
 
@@ -267,7 +268,7 @@ app.get('/reset', (req, res) => {
 })
 
 
-app.get('/:albumSlug', cache.route({expire: 1500}), async (req: Request, res: Response) => {
+app.get('/:albumSlug', cache.route(), async (req: Request, res: Response) => {
     const album = albums.find(album => album.slug === req.params['albumSlug']);
     if (!album) {
         res.sendStatus(404);
@@ -280,7 +281,54 @@ app.get('/:albumSlug', cache.route({expire: 1500}), async (req: Request, res: Re
     return res.render('album', {title: album.name, album, photos})
 });
 
-app.get('/:albumSlug/:photoID', cache.route({expire: 1500}), async (req: Request, res: Response) => {
+app.get('/:albumSlug/cover.jpg', async (req: Request, res: Response) => {
+    const album = albums.find(album => album.slug === req.params['albumSlug']);
+    if (!album) {
+        res.sendStatus(404);
+        return;
+    }
+
+
+    const photos = await getAlbum(album.slug);
+    const arrayBuffer = await axios(photos[0].thumbnail, {responseType: 'stream'});
+
+    res.setHeader('Content-Type', 'image/jpeg');
+    res.setHeader('Cache-Control','max-age=86400');
+    arrayBuffer.data.pipe(res);
+});
+
+app.get('/:albumSlug/:photoID/full.jpg', async (req: Request, res: Response) => {
+    const album = albums.find(album => album.slug === req.params['albumSlug']);
+    if (!album) {
+        res.sendStatus(404);
+        return;
+    }
+
+
+    const photo = await getAlbumImage(album.slug, req.params['photoID']);
+    const arrayBuffer = await axios(photo.url, {responseType: 'stream'});
+
+    res.setHeader('Content-Type', 'image/jpeg');
+    res.setHeader('Cache-Control','max-age=86400');
+    arrayBuffer.data.pipe(res);
+});
+
+app.get('/:albumSlug/:photoID/thumb.jpg', async (req: Request, res: Response) => {
+    const album = albums.find(album => album.slug === req.params['albumSlug']);
+    if (!album) {
+        res.sendStatus(404);
+        return;
+    }
+
+    const photo = await getAlbumImage(album.slug, req.params['photoID']);
+    const arrayBuffer = await axios(photo.thumbnail.url, {responseType: 'stream'});
+
+    res.setHeader('Content-Type', 'image/jpeg');
+    res.setHeader('Cache-Control','max-age=86400');
+    arrayBuffer.data.pipe(res);
+});
+
+app.get('/:albumSlug/:photoID', cache.route(), async (req: Request, res: Response) => {
     const album = albums.find(album => album.slug === req.params['albumSlug']);
     if (!album) {
         res.sendStatus(404);

@@ -8,7 +8,7 @@ block meta
     meta(name='twitter:description' content=album.name)
 
     each photo in photos.slice(0, 50)
-        link(rel='preload' as='image' href=photo.thumbnail)
+        link(rel='preload' as='image' href=`/${album.slug}/${photo.id}/thumb.jpg`)
 
 
 block content
@@ -17,5 +17,5 @@ block content
     div.photos
         each photo in photos
             a(href=`/${album.slug}/${photo.id}`, class='photo')
-                img(src=photo.thumbnail, alt='Photo Thumb', srcset=`${photo.thumbnail} 100w`)
+                img(src=`/${album.slug}/${photo.id}/thumb.jpg`, alt='Photo Thumb', srcset=`/${album.slug}/${photo.id}/thumb.jpg 100w`)
     script(src='/assets/js/album.js')
