@@ -303,40 +303,6 @@ app.get('/:albumSlug', cache.route(), async (req: Request, res: Response) => {
     return res.render('album', {title: album.name, album, photos})
 });
 
-app.get('/:albumSlug/cover.jpg', async (req: Request, res: Response) => {
-    const album = albums.find(album => album.slug === req.params['albumSlug']);
-    if (!album) {
-        res.sendStatus(404);
-        return;
-    }
-
-
-    const photos = await getAlbum(album.slug);
-    return returnImage(res, photos[0].thumbnail);
-});
-
-app.get('/:albumSlug/:photoID/full.jpg', async (req: Request, res: Response) => {
-    const album = albums.find(album => album.slug === req.params['albumSlug']);
-    if (!album) {
-        res.sendStatus(404);
-        return;
-    }
-
-
-    const photo = await getAlbumImage(album.slug, req.params['photoID']);
-    return returnImage(res, photo.url);
-});
-
-app.get('/:albumSlug/:photoID/thumb.jpg', async (req: Request, res: Response) => {
-    const album = albums.find(album => album.slug === req.params['albumSlug']);
-    if (!album) {
-        res.sendStatus(404);
-        return;
-    }
-
-    const photo = await getAlbumImage(album.slug, req.params['photoID']);
-    return returnImage(res, photo.thumbnail.url);
-});
 
 app.get('/:albumSlug/:photoID', cache.route(), async (req: Request, res: Response) => {
     const album = albums.find(album => album.slug === req.params['albumSlug']);
