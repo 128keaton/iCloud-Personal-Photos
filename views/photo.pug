@@ -4,7 +4,7 @@ block meta
     meta(name='description' content=photo.caption)
     meta(name='og:description' content=photo.caption)
     meta(name='twitter:description' content=photo.caption)
-    link(rel='preload' as='image' href=`/${album.slug}/${photo.photoGuid}/full.jpg`)
+    link(rel='preload' as='image' href=photo.url)
     if photo.thumbnail
         meta(name='twitter:image' content=photo.thumbnail.url)
         link(rel='preload' as='image' href=photo.thumbnail.url)
@@ -19,9 +19,9 @@ block content
         if prevPhoto
             a.prev(href=`/${album.slug}/${prevPhoto}`)
         if photo.thumbnail
-            img(src=`/${album.slug}/${photo.photoGuid}/full.jpg`, alt=`${photo.caption || 'Photo'}`, srcset=`/${album.slug}/${photo.photoGuid}/thumb.jpg 250w, /${album.slug}/${photo.photoGuid}/full.jpg 350w`)
+            img(src=photo.url, alt=`${photo.caption || 'Photo'}`, srcset=`${photo.thumbnail.url} 250w, ${photo.url} 350w`)
         else
-            img(src=`/${album.slug}/${photo.photoGuid}/full.jpg`, alt=`${photo.caption || 'Photo'}`, srcset=`/${album.slug}/${photo.photoGuid}/full.jpg 350w`)
+            img(src=photo.url, alt=`${photo.caption || 'Photo'}`, srcset=`${photo.url} 350w`)
         p.caption #{photo.caption}
         a.album-link(href=`/${album.slug}`) #{album.name}
         if nextPhoto
